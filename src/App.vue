@@ -1,28 +1,104 @@
 <template>
-  <div id="app">
-    <img src="./assets/logo.png">
-    <hello></hello>
-  </div>
+  <transition :name="animateName">
+    <router-view></router-view>
+  </transition>
 </template>
 
 <script>
-import Hello from './components/Hello';
-
 export default {
   name: 'app',
-  components: {
-    Hello,
+  data() {
+    return {
+      direction: 'forword',
+    };
+  },
+  computed: {
+    animateName() {
+      return this.direction === 'forword' ?
+        'pop-left' :
+        'pop-right';
+    },
+    pathRecord() {
+      return this.$store.getters.pathRecord;
+    },
+  },
+  mounted() {
+    const path = this.$route.path;
+    this.$store.commit('ADDPATHRECORD', { path });
+  },
+  watch: {
+    $route(to, from) {
+      const toPath = to.path;
+      const fromPath = from.path;
+      if (this.pathRecord.indexOf(toPath) > -1) {
+        this.$store.commit('REMOVEPATHRECORD', { path: fromPath });
+        this.direction = 'backword';
+      } else {
+        this.$store.commit('ADDPATHRECORD', { path: toPath });
+        this.direction = 'forword';
+      }
+    },
   },
 };
 </script>
 
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+<style lang="scss" scoped>
+.pop-left-enter-active,
+.pop-left-leave-active,
+.pop-right-enter-active,
+.pop-right-leave-active {
+  width: 100%;
+  animation-duration: .5s;
+  animation-fill-mode: both;
+  backface-visibility: hidden;
+  will-change: transform;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.pop-left-enter-active{
+  animation-name: popInRight;
+}
+.pop-left-leave-active{
+  animation-name: popOutLeft;
+}
+.pop-right-enter-active{
+  animation-name: popInLeft;
+}
+.pop-right-leave-active{
+  animation-name: popOutRight;
+}
+@keyframes popInLeft{
+  from{
+    transform: translate3d(-100%,0,0);
+  }
+  to{
+    transform: translate3d(0,0,0);
+  }
+}
+@keyframes popOutLeft{
+  from{
+    transform: translate3d(0,0,0);
+  }
+  to{
+    transform: translate3d(-30%,0,0);
+  }
+}
+@keyframes popInRight{
+  from{
+    transform: translate3d(100%,0,0);
+  }
+  to{
+    transform: translate3d(0,0,0);
+  }
+}
+@keyframes popOutRight{
+  from{
+    transform: translate3d(0,0,0);
+  }
+  to{
+    transform: translate3d(30%,0,0);
+  }
 }
 </style>
