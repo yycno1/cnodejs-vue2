@@ -1,15 +1,18 @@
-function formatTopicTime(time){
-  const msec = new Date(time).getTime(),
-    curMsec = new Date().getTime(),
-    gapSeconds = Math.floor((curMsec - msec) / 1000);
+/* eslint-disable no-shadow */
+/* eslint-disable no-param-reassign*/
 
-  const formatFuc = function(baseTime, suffix){
+function formatTopicTime(time) {
+  const msec = new Date(time).getTime();
+  const curMsec = new Date().getTime();
+  const gapSeconds = Math.floor((curMsec - msec) / 1000);
+
+  function formatFuc(baseTime, suffix) {
     return Math.floor(gapSeconds / baseTime) + suffix;
-  };
+  }
 
   let formatTime = '';
 
-  switch(true){
+  switch (true) {
     case gapSeconds < 60 :
       formatTime = '刚刚';
       break;
@@ -19,7 +22,7 @@ function formatTopicTime(time){
       break;
 
     case gapSeconds < 60 * 60 * 24 :
-      formatTime = formatFuc(60*60, '小时前');
+      formatTime = formatFuc(60 * 60, '小时前');
       break;
 
     case gapSeconds < 60 * 60 * 24 * 30 :
@@ -35,12 +38,12 @@ function formatTopicTime(time){
       break;
 
     default : break;
-  };
+  }
 
   return formatTime;
 }
 
-function formatTime(time, format='yyyy-MM-dd hh:mm:ss.S'){
+function formatTime(time, format = 'yyyy-MM-dd hh:mm:ss.S') {
   time = new Date(time);
   const o = {
     'M+': time.getMonth() + 1,
@@ -48,23 +51,23 @@ function formatTime(time, format='yyyy-MM-dd hh:mm:ss.S'){
     'h+': time.getHours(),
     'm+': time.getMinutes(),
     's+': time.getSeconds(),
-    'S' : time.getMilliseconds(),
+    S: time.getMilliseconds(),
   };
   if (/(y+)/.test(format)) {
-    const year = time.getFullYear() + "",
-      matched = RegExp.$1;
+    const year = String(time.getFullYear());
+    const matched = RegExp.$1;
     format = format.replace(matched, year.substr(4 - matched.length));
   }
-  for (let key in o) {
-    if (new RegExp("("+key+")").test(format)) {
+  for (const key of Object.keys(o)) {
+    if (new RegExp(`(${key})`).test(format)) {
       const matched = RegExp.$1;
-      format = format.replace(matched, matched.length === 1 ? o[key] : ("00" + o[key]).substr(("" + o[key]).length));
+      format = format.replace(matched, matched.length === 1 ? o[key] : `00${o[key]}`.substr(String(o[key]).length));
     }
   }
   return format;
 }
 
-function getLabel(topic){
+export function getLabel(topic) {
   if (topic.top) {
     return 'top';
   }
@@ -75,7 +78,7 @@ function getLabel(topic){
   return tab || 'notab';
 }
 
-function formatLabel(label){
+export function formatLabel(label) {
   const labelMap = {
     share: '分享',
     ask: '问答',
@@ -83,7 +86,7 @@ function formatLabel(label){
     job: '工作',
     all: '全部',
     top: '置顶',
-  }
+  };
 
   return label === 'notab' ? '暂无' : labelMap[label];
 }
