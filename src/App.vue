@@ -1,5 +1,10 @@
 <template>
-  <transition :name="animateName">
+  <transition
+    :name="animateName"
+    @before-enter="beforeEnter"
+    @after-enter="afterEnter"
+    @before-leave="beforeLeave"
+    @after-leave="afterLeave">
     <router-view></router-view>
   </transition>
 </template>
@@ -20,6 +25,32 @@ export default {
     },
     pathRecord() {
       return this.$store.getters.pathRecord;
+    },
+  },
+  methods: {
+    beforeEnter() {
+      this.$store.commit('UPDATE_TRANSITION_STATUS', {
+        type: 'enter',
+        status: false,
+      });
+    },
+    afterEnter() {
+      this.$store.commit('UPDATE_TRANSITION_STATUS', {
+        type: 'enter',
+        status: true,
+      });
+    },
+    beforeLeave() {
+      this.$store.commit('UPDATE_TRANSITION_STATUS', {
+        type: 'leave',
+        status: false,
+      });
+    },
+    afterLeave() {
+      this.$store.commit('UPDATE_TRANSITION_STATUS', {
+        type: 'leave',
+        status: true,
+      });
     },
   },
   mounted() {
@@ -82,7 +113,7 @@ export default {
     transform: translate3d(0,0,0);
   }
   to{
-    transform: translate3d(-30%,0,0);
+    transform: translate3d(-100%,0,0);
   }
 }
 @keyframes popInRight{
@@ -98,7 +129,7 @@ export default {
     transform: translate3d(0,0,0);
   }
   to{
-    transform: translate3d(30%,0,0);
+    transform: translate3d(100%,0,0);
   }
 }
 </style>

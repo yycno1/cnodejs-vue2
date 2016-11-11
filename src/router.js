@@ -1,17 +1,16 @@
 import VueRouter from 'vue-router';
 import Topic from './views/topic';
+import TopicDetail from './views/topic_detail';
 
 const routes = [{
   path: '/',
   component: Topic,
 }, {
-  path: '/home',
+  path: '/topic',
   component: Topic,
 }, {
   path: '/topic/:id',
-  component: {
-    template: '<div>topic detail</div>',
-  },
+  component: TopicDetail,
 }, {
   path: '/login',
   component: {

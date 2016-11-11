@@ -1,7 +1,11 @@
 <template>
   <div>
-    <my-header :title="title" leftIconClass="icon-nav" @leftIconClick="onLeftIconClick"></my-header>
-    <ul class="topic-list">
+    <my-header leftIconClass="icon-nav"
+      :title="title"
+      @leftIconClick="toggleSidebar">
+    </my-header>
+    <div class="show-loading" v-if="loading"></div>
+    <ul class="topic-list" v-else>
       <li v-for="topic in topics" class="clearfix">
         <router-link :to="'/topic/'+topic.id" class="topic-link">
           <div class="topic-title text-overflow"
@@ -36,12 +40,18 @@
         </router-link>
       </li>
     </ul>
+    <sidebar :show="showSidebar"
+      @overlayClick="closeSidebar"
+      @navItemClick="closeSidebar">
+    </sidebar>
   </div>
 </template>
 <script>
-import MyHeader from 'components/my-header';
-import api from '../common/api';
+import MyHeader from 'components/my_header';
+import Sidebar from 'components/sidebar';
+import { mapGetters } from 'vuex';
 import { getLabel, formatLabel } from '../common/filter';
+import api from '../common/api';
 
 export default{
   data() {
@@ -53,20 +63,26 @@ export default{
         tab: 'all',
         mdrender: false,
       },
+      showSidebar: false,
     };
   },
   computed: {
     title() {
       return this.formatLabel(this.pageInfo.tab);
     },
+    loading() {
+      return this.topics.length === 0 || !this.transitionStatus.enter;
+    },
+    ...mapGetters(['transitionStatus']),
   },
   components: {
     MyHeader,
+    Sidebar,
   },
   methods: {
     /* eslint-disable no-console */
-    onLeftIconClick() {
-      console.log('left Icon Clicked!');
+    toggleSidebar() {
+      this.showSidebar = !this.showSidebar;
     },
     initData() {
       api.fetchTopic(this.pageInfo)
@@ -74,16 +90,46 @@ export default{
           this.topics = res.data.data;
         });
     },
+    closeSidebar() {
+      this.showSidebar = false;
+    },
     getLabel,
     formatLabel,
   },
-  mounted() {
+  created() {
+    const tab = this.$route.query.tab;
+    if (!tab) {
+      this.pageInfo.tab = 'all';
+    } else {
+      this.pageInfo.tab = tab;
+    }
     this.initData();
+  },
+  watch: {
+    $route(to) {
+      const tab = to.query.tab;
+      if (!tab) {
+        this.pageInfo.tab = 'all';
+      } else {
+        this.pageInfo.tab = tab;
+      }
+      this.topics = [];
+      this.initData();
+    },
   },
 };
 </script>
 <style lang="scss" scoped>
 @import '../assets/style/variable';
+.show-loading{
+  background: url(../assets/img/ic_no_data.png) no-repeat center;
+  background-size: 50%;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: $headerHeight;
+  bottom: 0;
+}
 .topic-list{
   margin-top: $headerHeight;
 

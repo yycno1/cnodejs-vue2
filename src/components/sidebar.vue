@@ -1,12 +1,11 @@
 <template>
-  <div class="sidebar-container" :class="gotoShow?'goto-show':''" v-show="doDisplay">
-    <div class="mask" @click="emitClose"></div>
-    <div class="sidebar" @transitionend="listenTransitionend"  @webkitTransitionEnd="listenWebkitTransitionEnd">
+  <transition name="sidebar-slide">
+    <div class="sidebar" v-show="show">
       <div class="sidebar-header">
         <div class="user-photo">
-          <a v-link="{path:userPath}">
+          <router-link :to="userPath">
             <img :src="imgPath">
-          </a>
+          </router-link>
         </div>
         <p class="user-name" v-text="username"></p>
         <div class="user-point-wrap" v-if="isLogin">
@@ -15,218 +14,182 @@
         </div>
       </div>
       <div class="sidebar-body">
-        <ul class="nav-list" @click="delegateNav">
-          <li>
-            <a v-link="{path:'/?tab=all',exact: true}">
-              <i class="iconfont icon-index"></i>
-              <span>全部</span>
-            </a>
-          </li>
-          <li>
-            <a v-link="{path:'/?tab=good',exact: true}">
-              <i class="iconfont icon-good"></i>
-              <span>精华</span>
-            </a>
-          </li>
-          <li>
-            <a v-link="{path:'/?tab=share',exact: true}">
-              <i class="iconfont icon-share"></i>
-              <span>分享</span>
-            </a>
-          </li>
-          <li>
-            <a v-link="{path:'/?tab=ask',exact: true}">
-              <i class="iconfont icon-ask"></i>
-              <span>问答</span>
-            </a>
-          </li>
-          <li class="border-bottom">
-            <a v-link="{path:'/?tab=job',exact: true}">
-              <i class="iconfont icon-job"></i>
-              <span>工作</span>
-            </a>
-          </li>
-          <li>
-            <i class="iconfont icon-msg"></i>
-            <span>消息</span>
-          </li>
-          <li>
-            <i class="iconfont icon-about"></i>
-            <span>关于</span>
+        <ul class="nav-list">
+          <li v-for="item of navList" :class="item.liClass" @click="navItemClick">
+            <router-link :to="item.to">
+              <i class="iconfont" :class="item.iconClass"></i>
+              <span v-text="item.text"></span>
+            </router-link>
           </li>
         </ul>
       </div>
     </div>
-  </div>
+  </transition>
 </template>
 <script>
-import user from '../common/user'
-import {isLogin,userInfo} from '../vuex/getter'
-import {clearUserInfo} from '../vuex/action'
-import placeholderImg from '../assets/img/image_placeholder.png'
-export default{
-  data () {
+import placeholderImg from 'assets/img/image_placeholder.png';
+import { mapGetters, mapActions } from 'vuex';
+import popupMixin from '../mixins/popupMixin';
+import user from '../common/user';
+
+export default {
+  mixins: [popupMixin],
+  data() {
     return {
-      gotoShow: false,
-      doDisplay: false
-    }
+      navList: [
+        {
+          to: '/topic?tab=all',
+          text: '全部',
+          iconClass: 'icon-index',
+          liClass: '',
+        }, {
+          to: '/topic?tab=good',
+          text: '精华',
+          iconClass: 'icon-good',
+          liClass: '',
+        }, {
+          to: '/topic?tab=share',
+          text: '分享',
+          iconClass: 'icon-share',
+          liClass: '',
+        }, {
+          to: '/topic?tab=ask',
+          text: '问答',
+          iconClass: 'icon-ask',
+          liClass: '',
+        }, {
+          to: '/topic?tab=job',
+          text: '工作',
+          iconClass: 'icon-job',
+          liClass: 'border-bottom',
+        }, {
+          to: '/msg',
+          text: '消息',
+          iconClass: 'icon-msg',
+          liClass: '',
+        }, {
+          to: '/about',
+          text: '关于',
+          iconClass: 'icon-about',
+          liClass: '',
+        },
+      ],
+    };
   },
-  props: ['show'],
   computed: {
-    imgPath () {
-      const placeholder = placeholderImg
-      return this.isLogin?this.userInfo.avatar_url:placeholder
+    imgPath() {
+      return this.isLogin ? this.userInfo.avatar_url : placeholderImg;
     },
-    username () {
-      const placeholder = '点击头像登录'
-      return this.isLogin?this.userInfo.loginname:placeholder
+    username() {
+      const placeholder = '点击头像登录';
+      return this.isLogin ? this.userInfo.loginname : placeholder;
     },
-    userPath () {
-      return this.isLogin?`/user/${this.userInfo.loginname}`:'/login'
-    }
-  },
-  vuex: {
-    getters: {
-      isLogin,
-      userInfo
+    userPath() {
+      return this.isLogin ? `/user/${this.userInfo.loginname}` : '/login';
     },
-    actions: {
-      clearUserInfo
-    }
+    showSidebar() {
+      return this.show;
+    },
+    ...mapGetters(['isLogin', 'userinfo']),
   },
   methods: {
-    listenTransitionend () {
-      if(this.show === false){
-        this.doDisplay = false
-      }
+    emitClose() {
+      this.$emit('close');
     },
-    listenWebkitTransitionEnd () {
-      this.listenTransitionend()
+    logout() {
+      user.delUser();
+      this.clearUserInfo();
     },
-    emitClose () {
-      this.$emit('close')
+    overlayClick() {
+      this.$emit('overlayClick');
     },
-    delegateNav (e) {
-      if(e.target.href || e.target.parentNode.href){
-        this.emitClose()
-      }
+    navItemClick() {
+      this.$emit('navItemClick');
     },
-    logout () {
-      user.delUser()
-      this.clearUserInfo()
-    }
+    ...mapActions(['clearUserInfo']),
   },
-  watch: {
-    'show': function(val,oldVal) {
-      if(val === true){
-        this.doDisplay = true,
-        setTimeout(() =>{
-          this.gotoShow = true
-        },0)
-      }else{
-        this.gotoShow = false
-      }
-    }
-  }
-}
+};
 </script>
-<style lang="sass" scoped>
-
+<style lang="scss" scoped>
 @import "../assets/style/variable";
 
-.sidebar-container{
-  width: 100%;height:100%;
+.sidebar-slide-enter,
+.sidebar-slide-leave-active{
+  transform: translate3d(-100%,0,0);
+}
+.sidebar-slide-enter-active,
+.sidebar-slide-leave-active{
+  transition: all .5s;
+}
+.sidebar{
   position: fixed;
-  top:0;left:0;
-  overflow:hidden;
+  z-index: 10000;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 250px;
+  background-color:#fff;
+}
 
-  &.goto-show{
-    .mask{
-      opacity: 0.4;
-      display: block
-    }
+.sidebar-header{
+  height: 150px;
+  @include border;
+  background: url("../assets/img/main_nav_header_bg.png") no-repeat bottom;
+  overflow: hidden;
 
-    .sidebar{
-      transform: translateX(0);
-    }
-  }
-
-  .mask{
-    position: absolute;z-index:999;
-    width: 100%;height:100%;
-    background-color: #000;
-    opacity: 0;
-    transition: opacity .3s;
-  }
-
-  .sidebar{
-    width: 250px;height:100%;
-    position:absolute;z-index:1000;
-    background-color:#fff;
-    transition: all .3s;
-    transform: translateX(-100%);
-  }
-
-  .sidebar-header{
-    height: 150px;
-    border-bottom: 1px solid #eee;
-    background: url("../assets/img/main_nav_header_bg.png") no-repeat bottom;
+  .user-photo{
+    width: 70px;
+    height: 70px;
+    margin: 15px auto 0;
+    border-radius: 50%;
     overflow: hidden;
+    background-color:#fff;
 
-    .user-photo{
-      width: 70px;
-      height: 70px;
-      margin: 15px auto 0;
-      border-radius: 50%;
-      overflow: hidden;
-      background-color:#fff;
-
-      img{
-        width: 100%;
-        height: 100%;
-      }
+    img{
+      width: 100%;
+      height: 100%;
     }
+  }
 
-    .user-name{
-      color: #fff;
-      font-size: 14px;
-      text-align: center;
-      margin-top: 10px;
-    }
+  .user-name{
+    color: #fff;
+    font-size: 14px;
+    text-align: center;
+    margin-top: 10px;
+  }
 
-    .user-point-wrap{
-      display: flex;
-      justify-content: space-around;
-      color: #fff;
+  .user-point-wrap{
+    display: flex;
+    justify-content: space-around;
+    color: #fff;
 
-      .user-ponit{
-        color: $mainColor;
-      }
-    }
-
-    .logout-btn{
+    .user-ponit{
       color: $mainColor;
     }
   }
 
-  .sidebar-body{
-    padding: 15px 20px;
+  .logout-btn{
+    color: $mainColor;
+  }
+}
 
-    .nav-list li{
-      padding: 15px 0;
+.sidebar-body{
+  padding: 15px 20px;
 
-      &.border-bottom{
-        border-bottom: 1px solid #eee;
-      }
+  .nav-list li{
+    padding: 15px 0;
 
-      .iconfont{
-        font-size: 18px;
-      }
+    &.border-bottom{
+      border-bottom: 1px solid #eee;
+    }
 
-      span{
-        font-size: 16px;
-        margin-left: 25px;
-      }
+    .iconfont{
+      font-size: 18px;
+    }
+
+    span{
+      font-size: 16px;
+      margin-left: 25px;
     }
   }
 }

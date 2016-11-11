@@ -9,6 +9,10 @@ Vue.use(Vuex);
 const state = {
   userinfo: {},
   pathRecord: [],
+  transitionStatus: {
+    enter: true,
+    leave: true,
+  },
 };
 
 const mutations = {
@@ -24,6 +28,14 @@ const mutations = {
   REMOVEPATHRECORD({ pathRecord }, payload) {
     pathRecord.splice(pathRecord.indexOf(payload.path), 1);
   },
+  UPDATE_TRANSITION_STATUS({ transitionStatus }, payload) {
+    const key = payload.type;
+    if (payload.status) {
+      transitionStatus[key] = payload.status;
+    } else {
+      transitionStatus[key] = !transitionStatus[key];
+    }
+  },
 };
 
 const actions = {
@@ -37,6 +49,7 @@ const getters = {
   isLogin: state => !!state.userinfo.loginname,
   userinfo: state => state.userinfo,
   pathRecord: state => state.pathRecord,
+  transitionStatus: state => state.transitionStatus,
 };
 
 export default new Vuex.Store({
