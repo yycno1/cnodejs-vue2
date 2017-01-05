@@ -54,6 +54,8 @@ import { getLabel, formatLabel } from '../common/filter';
 import api from '../common/api';
 
 export default{
+  name: 'topic',
+
   data() {
     return {
       topics: [],
@@ -64,6 +66,7 @@ export default{
         mdrender: false,
       },
       showSidebar: false,
+      path: this.$route.path,
     };
   },
   computed: {
@@ -71,7 +74,7 @@ export default{
       return this.formatLabel(this.pageInfo.tab);
     },
     loading() {
-      return this.topics.length === 0 || !this.transitionStatus.enter;
+      return this.topics.length === 0 || this.transitionStatus.enterPath === this.path;
     },
     ...mapGetters(['transitionStatus']),
   },
@@ -124,14 +127,19 @@ export default{
 .show-loading{
   background: url(../assets/img/ic_no_data.png) no-repeat center;
   background-size: 50%;
-  position: absolute;
+  position: absolute;z-index: 10;
   left: 0;
   right: 0;
   top: $headerHeight;
   bottom: 0;
 }
 .topic-list{
-  margin-top: $headerHeight;
+  position: absolute;z-index: 11;
+  left: 0;
+  right: 0;
+  top: $headerHeight;
+  bottom: 0;
+  overflow: auto;
 
   li{
     padding: 10px;

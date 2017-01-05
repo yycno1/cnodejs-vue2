@@ -10,8 +10,8 @@ const state = {
   userinfo: {},
   pathRecord: [],
   transitionStatus: {
-    enter: true,
-    leave: true,
+    enterPath: '',
+    leavePath: '',
   },
 };
 
@@ -29,12 +29,7 @@ const mutations = {
     pathRecord.splice(pathRecord.indexOf(payload.path), 1);
   },
   UPDATE_TRANSITION_STATUS({ transitionStatus }, payload) {
-    const key = payload.type;
-    if (payload.status) {
-      transitionStatus[key] = payload.status;
-    } else {
-      transitionStatus[key] = !transitionStatus[key];
-    }
+    transitionStatus = Object.assign(transitionStatus, payload);
   },
 };
 

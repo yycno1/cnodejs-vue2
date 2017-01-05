@@ -15,6 +15,8 @@ export default {
   data() {
     return {
       direction: 'forword',
+      toPath: '',
+      fromPath: '',
     };
   },
   computed: {
@@ -30,26 +32,22 @@ export default {
   methods: {
     beforeEnter() {
       this.$store.commit('UPDATE_TRANSITION_STATUS', {
-        type: 'enter',
-        status: false,
+        enterPath: this.toPath,
       });
     },
     afterEnter() {
       this.$store.commit('UPDATE_TRANSITION_STATUS', {
-        type: 'enter',
-        status: true,
+        enterPath: '',
       });
     },
     beforeLeave() {
       this.$store.commit('UPDATE_TRANSITION_STATUS', {
-        type: 'leave',
-        status: false,
+        leavePath: this.fromPath,
       });
     },
     afterLeave() {
       this.$store.commit('UPDATE_TRANSITION_STATUS', {
-        type: 'leave',
-        status: true,
+        leavePath: '',
       });
     },
   },
@@ -59,8 +57,8 @@ export default {
   },
   watch: {
     $route(to, from) {
-      const toPath = to.path;
-      const fromPath = from.path;
+      const toPath = this.toPath = to.path;
+      const fromPath = this.fromPath = from.path;
       if (this.pathRecord.indexOf(toPath) > -1) {
         this.$store.commit('REMOVEPATHRECORD', { path: fromPath });
         this.direction = 'backword';
@@ -74,6 +72,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.pop-left-enter{
+  transform: translate3d(100%,0,0);
+}
+.pop-right-enter{
+  transform: translate3d(-100%,0,0)
+}
 .pop-left-enter-active,
 .pop-left-leave-active,
 .pop-right-enter-active,
@@ -84,7 +88,7 @@ export default {
   backface-visibility: hidden;
   will-change: transform;
   height: 100%;
-  position: absolute;
+  position: absolute;z-index: 11;
   left: 0;
   top: 0;
 }

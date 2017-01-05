@@ -78,6 +78,7 @@ export default {
         }],
       },
       fetching: true,
+      path: this.$route.path,
     };
   },
   computed: {
@@ -88,7 +89,7 @@ export default {
       return getLabel(this.content);
     },
     loading() {
-      return this.fetching || !this.transitionStatus.enter;
+      return this.fetching || this.transitionStatus.enterPath === this.path;
     },
     ...mapGetters(['transitionStatus']),
   },
@@ -125,8 +126,12 @@ export default {
   bottom: 0;
 }
 .topic-detail-container{
-  margin-top: $headerHeight;
-  overflow: hidden;
+  position: absolute;
+  top: $headerHeight;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: auto;
 }
 .info-wrap{
   padding: 0 $contentPadding;
