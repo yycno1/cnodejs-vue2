@@ -1,6 +1,8 @@
 import VueRouter from 'vue-router';
 import Topic from './views/topic';
 import TopicDetail from './views/topic_detail';
+import Login from './views/login';
+import UserDetail from './views/user_detail';
 
 const routes = [{
   path: '/',
@@ -13,14 +15,10 @@ const routes = [{
   component: TopicDetail,
 }, {
   path: '/login',
-  component: {
-    template: '<div>loginloginloginloginloginloginlogin</div>',
-  },
+  component: Login,
 }, {
   path: '/user/:username',
-  component: {
-    template: '<div>user center asdasd</div>',
-  },
+  component: UserDetail,
 }];
 
 export default new VueRouter({

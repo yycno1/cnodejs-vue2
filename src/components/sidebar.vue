@@ -9,7 +9,7 @@
         </div>
         <p class="user-name" v-text="username"></p>
         <div class="user-point-wrap" v-if="isLogin">
-          <span>积分：<span class="user-ponit" v-text="userInfo.score"></span></span>
+          <span>积分：<span class="user-ponit" v-text="userinfo.score"></span></span>
           <span class="logout-btn" @click="logout">注销</span>
         </div>
       </div>
@@ -28,7 +28,7 @@
 </template>
 <script>
 import placeholderImg from 'assets/img/image_placeholder.png';
-import { mapGetters, mapActions } from 'vuex';
+import { mapGetters } from 'vuex';
 import popupMixin from '../mixins/popupMixin';
 import user from '../common/user';
 
@@ -78,14 +78,14 @@ export default {
   },
   computed: {
     imgPath() {
-      return this.isLogin ? this.userInfo.avatar_url : placeholderImg;
+      return this.isLogin ? this.userinfo.avatar_url : placeholderImg;
     },
     username() {
       const placeholder = '点击头像登录';
-      return this.isLogin ? this.userInfo.loginname : placeholder;
+      return this.isLogin ? this.userinfo.loginname : placeholder;
     },
     userPath() {
-      return this.isLogin ? `/user/${this.userInfo.loginname}` : '/login';
+      return this.isLogin ? `/user/${this.userinfo.loginname}` : '/login';
     },
     showSidebar() {
       return this.show;
@@ -106,7 +106,9 @@ export default {
     navItemClick() {
       this.$emit('navItemClick');
     },
-    ...mapActions(['clearUserInfo']),
+    clearUserInfo() {
+      this.$store.commit('CLEAR_USERINFO');
+    },
   },
 };
 </script>

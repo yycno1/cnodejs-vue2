@@ -90,7 +90,10 @@ export default {
   height: 100%;
   position: absolute;z-index: 11;
   left: 0;
+  right: 0;
   top: 0;
+  bottom: 0;
+  overflow: auto;
 }
 .pop-left-enter-active{
   animation-name: popInRight;
