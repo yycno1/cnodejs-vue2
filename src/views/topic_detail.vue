@@ -10,11 +10,19 @@
       <section class="info-wrap">
         <h2 class="topic-title" v-text="content.title"></h2>
         <div class="author-info">
-          <img :src="content.author.avatar_url" alt="photo" class="author-photo">
+          <router-link :to="'/user/' + content.author.loginname">
+            <img :src="content.author.avatar_url" alt="photo" class="author-photo">
+          </router-link>
           <div class="other-author-info">
             <div class="info-row">
+              <router-link :to="'/user/' + content.author.loginname">
                 <span v-text="content.author.loginname" :class="label" class="author-name"></span>
-                <i class="icon-like iconfont icon-like-empty"></i>
+              </router-link>
+              <i
+                class="icon-like iconfont"
+                :class="isCollect ? 'icon-like-full' : 'icon-like-empty'"
+                @click="toggleCollect(content.id)">
+              </i>
             </div>
             <div class="info-row">
               <p class="co-grey">
@@ -38,14 +46,18 @@
           <li class="reply-item" v-for="(reply,index) in replies">
             <div class="author-info">
               <div class="info-left">
-                <img :src="reply.author.avatar_url" alt="photo" class="author-photo">
+                <router-link :to="'/user/' + reply.author.loginname">
+                  <img :src="reply.author.avatar_url" alt="photo" class="author-photo">
+                </router-link>
                 <div>
-                  <span v-text="reply.author.loginname"></span>
+                  <router-link :to="'/user/' + reply.author.loginname">
+                    <span v-text="reply.author.loginname"></span>
+                  </router-link>
                   <p><span class="reply-floor" v-text="index+1+'楼'"></span> · <span>{{reply.create_at | formatTopicTime}}</span></p>
                 </div>
               </div>
               <div class="info-right">
-                <i class="iconfont icon-up"></i>
+                <i class="iconfont icon-up" @click="toggleUps(reply.reply_id)"></i>
                 <span class="up-count" v-text="reply.ups.length"></span>
                 <i class="iconfont icon-reply"></i>
               </div>
@@ -77,6 +89,7 @@ export default {
           ups: [],
         }],
       },
+      isCollect: false,
       fetching: true,
       path: this.$route.path,
     };
@@ -91,25 +104,108 @@ export default {
     loading() {
       return this.fetching || this.transitionStatus.enterPath === this.path;
     },
-    ...mapGetters(['transitionStatus']),
+    ...mapGetters(['transitionStatus', 'token', 'isLogin']),
   },
   components: {
     MyHeader,
   },
   methods: {
     initData(id) {
-      return api.fetchTopicDetail(id).then((res) => {
+      return api.fetchTopicDetail(id, this.token).then((res) => {
         this.content = res.data.data;
+        this.isCollect = this.content.is_collect;
         this.fetching = false;
       });
     },
     goBack() {
       this.$router.go(-1);
     },
+    toggleCollect(id) {
+      if (!this.checkLogin()) {
+        return;
+      }
+
+      const postData = {
+        accesstoken: this.token,
+        topic_id: id,
+      };
+
+      if (this.isCollect) {
+        api.deCollectTopic(postData)
+          .then(({ data }) => {
+            console.log(data);
+            if (data.success) {
+              console.log('取消收藏成功');
+              this.isCollect = false;
+            } else {
+              console.log('取消收藏失败');
+            }
+          });
+      } else {
+        api.collectTopic(postData)
+          .then(({ data }) => {
+            console.log(data);
+            if (data.success) {
+              console.log('收藏成功');
+              this.isCollect = true;
+            } else {
+              console.log('收藏失败');
+            }
+          });
+      }
+    },
+    interceptMDLink() {
+      const vm = this;
+      function handleLinkClick(event) {
+        const target = event.target;
+        if (target.tagName.toLowerCase() === 'a') {
+          const href = target.getAttribute('href');
+          if (href && !/^https?:\/\//.test(href)) {
+            event.preventDefault();
+            vm.$router.push(href);
+          }
+        }
+      }
+      const markdownBody = document.querySelectorAll('.markdown-body');
+      for (const node of markdownBody) {
+        node.addEventListener('click', handleLinkClick, false);
+      }
+    },
+    toggleUps(replyId) {
+      if (!this.checkLogin()) {
+        return;
+      }
+
+      api.ups(replyId, this.token)
+        .then(({ data }) => {
+          if (data.success) {
+            console.log(data.action);
+            if (data.action === 'up') {
+              console.log('asdasd');
+            }
+          } else {
+            console.log('点赞失败');
+          }
+        });
+    },
+    checkLogin() {
+      const isLogin = this.isLogin;
+      if (!isLogin) {
+        console.log('该操作需要登录账户，是否现在登录?');
+      }
+      return isLogin;
+    },
   },
   created() {
     const id = this.$route.params.id;
     this.initData(id);
+  },
+  mounted() {
+    this.$watch('loading', (newVal) => {
+      if (!newVal) {
+        this.interceptMDLink();
+      }
+    }, { immediate: true });
   },
 };
 </script>
@@ -213,6 +309,10 @@ export default {
 
     .icon-up{
       font-size: 18px;
+
+      &.active{
+        color: $mainColor;
+      }
     }
     .up-count{
       margin-right: 10px;

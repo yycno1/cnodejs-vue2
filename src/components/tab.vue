@@ -1,5 +1,5 @@
 <template>
-  <div class="tab" :style="tabStyle">
+  <div class="tab">
     <slot></slot>
     <div class="tab-line" :style="lineStyle" :class="lineClass"></div>
   </div>
@@ -8,31 +8,23 @@
 export default {
   data() {
     return {
-      activeIndex: 0,
+      activeIndex: -1,
       itemNumber: 0,
       direction: 'forward',
     };
   },
   props: {
-    selectedIndex: {
+    selected: {
       type: Number,
       default: 0,
     },
     tabLineHeight: {
-      type: Number,
-      default: 3,
+      type: String,
+      default: '3px',
     },
     tabLineColor: {
       type: String,
       default: '#80bd01',
-    },
-    tabBg: {
-      type: String,
-      default: '#ffffff',
-    },
-    tabHeight: {
-      type: Number,
-      default: 44,
     },
     activeStyle: {
       type: Object,
@@ -63,13 +55,6 @@ export default {
         'transition-backward': this.direction === 'backward',
       };
     },
-    tabStyle() {
-      return {
-        height: `${this.tabHeight}px`,
-        lineHeight: `${this.tabHeight}px`,
-        background: this.tabBg,
-      };
-    },
   },
   methods: {
     updateIndex() {
@@ -77,15 +62,12 @@ export default {
       if (!$children) {
         return;
       }
-
       $children.forEach((child, index) => {
         child.index = index;
-        if (child.selected) {
-          this.activeIndex = index;
-        }
       });
+      this.itemNumber = $children.length;
     },
-    itemSelectedHandler() {
+    listenerItemSelected() {
       const $children = this.$children;
       if (!$children) {
         return;
@@ -94,22 +76,29 @@ export default {
       $children.forEach((child) => {
         child.$on('itemSelected', ({ index }) => {
           this.activeIndex = index;
-          this.$emit('itemSelected', { selectedIndex: index });
+          this.$emit('itemSelected', { selected: index });
         });
       });
     },
   },
   watch: {
     activeIndex(newVal, oldVal) {
-      this.$children[oldVal].selected = false;
-      this.$children[newVal].selected = true;
+      const oldSelectedItem = this.$children[oldVal];
+      const newSelectedItem = this.$children[newVal];
+      if (oldSelectedItem) {
+        oldSelectedItem.selected = false;
+      }
+      if (newSelectedItem) {
+        newSelectedItem.selected = true;
+      }
+
       if (newVal > oldVal) {
         this.direction = 'forward';
       } else {
         this.direction = 'backward';
       }
     },
-    selectedIndex(newVal) {
+    selected(newVal) {
       this.activeIndex = newVal;
     },
     activeStyle(newVal) {
@@ -132,6 +121,8 @@ export default {
   },
   mounted() {
     this.updateIndex();
+    this.listenerItemSelected();
+    this.activeIndex = this.selected;
   },
 };
 </script>
@@ -139,10 +130,10 @@ export default {
 @import '../assets/style/variable';
 .tab{
   height: 44px;
-  // line-height: 44px;
   display: flex;
   align-items: center;
   position: relative;
+  background: #333333;
 
   .tab-line{
     position: absolute;

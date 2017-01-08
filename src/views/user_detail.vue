@@ -7,26 +7,75 @@
     </my-header>
     <div class="user-detail-header">
       <div class="user-photo">
-        <img src="../assets/img/image_placeholder.png">
+        <img :src="info.avatar_url">
       </div>
-      <p class="user-name">username</p>
-      <p class="user-email"><a href="githubAddress">aaa@github.com</a></p>
+      <p class="user-name">{{info.loginname}}</p>
+      <p class="user-email"><a :href="'https://github.com/' + info.githubUsername">{{info.githubUsername + '@github.com'}}</a></p>
       <div class="user-point-wrap">
-        <span class="register-time"><span>注册时间：2016-01-01</span></span>
-        <span class="user-ponit">积分：<span>80</span></span>
+        <span class="register-time"><span>注册时间：{{info.create_at | formatTime('yyyy-MM-dd')}}</span></span>
+        <span class="user-ponit">积分：<span>{{info.score}}</span></span>
       </div>
     </div>
     <div class="user-detail-content">
-      <tab tab-bg="#333333" :active-style="tabItemActiveStyle" :item-style="tabItemStyle">
-        <tab-item :selected="true">最近回复</tab-item>
+      <tab
+        :selected="0"
+        :active-style="tabItemActiveStyle"
+        :item-style="tabItemStyle"
+        @itemSelected="handleItemSelected">
+        <tab-item>最近回复</tab-item>
         <tab-item>最新发布</tab-item>
-        <tab-item>话题设置</tab-item>
+        <tab-item>话题收藏</tab-item>
       </tab>
-      <tab-content>
-        <tab-panel></tab-panel>
-        <tab-panel></tab-panel>
-        <tab-panel></tab-panel>
-      </tab-content>
+      <div class="tab-content">
+        <div v-show="selectedIndex === 0">
+          <ul>
+            <li class="topic-list" v-for="topic in info.recent_replies">
+              <router-link :to="'/topic/' + topic.id" class="topic-link clearfixed">
+                <div class="author-phote"><img :src="topic.author.avatar_url"></div>
+                <div class="topic-info">
+                  <div class="text-overflow">{{topic.title}}</div>
+                  <div class="topic-info-row">
+                    <span>{{topic.author.loginname}}</span>
+                    <span>{{topic.last_reply_at | formatTopicTime}}</span>
+                  </div>
+                </div>
+              </router-link>
+            </li>
+          </ul>
+        </div>
+        <div v-show="selectedIndex === 1">
+          <ul>
+            <li class="topic-list" v-for="topic in info.recent_topics">
+              <router-link :to="'/topic/' + topic.id" class="topic-link clearfixed">
+                <div class="author-phote"><img :src="topic.author.avatar_url"></div>
+                <div class="topic-info">
+                  <div class="text-overflow">{{topic.title}}</div>
+                  <div class="topic-info-row">
+                    <span>{{topic.author.loginname}}</span>
+                    <span>{{topic.last_reply_at | formatTopicTime}}</span>
+                  </div>
+                </div>
+              </router-link>
+            </li>
+          </ul>
+        </div>
+        <div v-show="selectedIndex === 2">
+          <ul>
+            <li class="topic-list" v-for="topic in collectedTopics">
+              <router-link :to="'/topic/' + topic.id" class="topic-link clearfixed">
+                <div class="author-phote"><img :src="topic.author.avatar_url"></div>
+                <div class="topic-info">
+                  <div class="text-overflow">{{topic.title}}</div>
+                  <div class="topic-info-row">
+                    <span>{{topic.author.loginname}}</span>
+                    <span>{{topic.last_reply_at | formatTopicTime}}</span>
+                  </div>
+                </div>
+              </router-link>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -34,6 +83,7 @@
 import MyHeader from 'components/my_header';
 import Tab from 'components/tab';
 import TabItem from 'components/tab_item';
+import api from '../common/api';
 
 export default {
   data() {
@@ -45,6 +95,12 @@ export default {
       tabItemStyle: {
         color: '#aaa',
       },
+      info: {
+        recent_replies: [],
+        recent_topics: [],
+      },
+      collectedTopics: [],
+      selectedIndex: 0,
     };
   },
   components: {
@@ -56,6 +112,28 @@ export default {
     goBack() {
       this.$router.go(-1);
     },
+    getInfo() {
+      const name = this.$route.params.username;
+      api.fetchUserInfo(name)
+        .then(({ data }) => {
+          if (data.success) {
+            this.info = data.data;
+          }
+        });
+
+      api.fetchCollectedTopics(name)
+        .then(({ data }) => {
+          if (data.success) {
+            this.collectedTopics = data.data;
+          }
+        });
+    },
+    handleItemSelected(data) {
+      this.selectedIndex = data.selected;
+    },
+  },
+  created() {
+    this.getInfo();
   },
 };
 
@@ -112,17 +190,34 @@ export default {
     }
   }
 }
+.topic-list{
+  padding: 10px;
+  @include border;
 
-.tab-container{
-  display: flex;
-  align-item: center;
-  height: 44px;
-  .tab{
-    flex:1;
-    text-align: center;
-    background: linear-gradient(180deg,#e5e5e5,#e5e5e5,hsla(0,0%,90%,0)) 0 100% no-repeat;
-    &.active{
-      color: rgb(4,190,2);
+  .topic-link{
+    display: block;
+
+    .author-phote{
+      width: 36px;
+      height: 36px;
+      overflow: hidden;
+      border-radius: 50%;
+      margin-right: 10px;
+      float: left;
+
+      img{
+        width: 100%;
+        height: 100%;
+      }
+    }
+    .topic-info{
+      overflow: hidden;
+
+      .topic-info-row{
+        display: flex;
+        justify-content: space-between;
+        margin-top: 5px;
+      }
     }
   }
 }

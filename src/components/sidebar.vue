@@ -28,7 +28,7 @@
 </template>
 <script>
 import placeholderImg from 'assets/img/image_placeholder.png';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 import popupMixin from '../mixins/popupMixin';
 import user from '../common/user';
 
@@ -107,8 +107,9 @@ export default {
       this.$emit('navItemClick');
     },
     clearUserInfo() {
-      this.$store.commit('CLEAR_USERINFO');
+      this.$store.commit('CLEAR_USER');
     },
+    ...mapActions(['updateUserInfo']),
   },
 };
 </script>

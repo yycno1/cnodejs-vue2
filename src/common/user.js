@@ -9,12 +9,23 @@ function getUser() {
   return user || '';
 }
 
+function saveToken(token) {
+  window.localStorage.setItem('token', token);
+}
+
+function getToken() {
+  return window.localStorage.getItem('token') || '';
+}
+
 function delUser() {
   window.localStorage.setItem('user', '');
+  window.localStorage.setItem('token', '');
 }
 
 export default {
   saveUser,
   getUser,
   delUser,
+  saveToken,
+  getToken,
 };

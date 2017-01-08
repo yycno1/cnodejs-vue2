@@ -10,6 +10,8 @@
 </template>
 
 <script>
+import user from './common/user';
+
 export default {
   name: 'app',
   data() {
@@ -51,10 +53,6 @@ export default {
       });
     },
   },
-  mounted() {
-    const path = this.$route.path;
-    this.$store.commit('ADDPATHRECORD', { path });
-  },
   watch: {
     $route(to, from) {
       const toPath = this.toPath = to.path;
@@ -67,6 +65,21 @@ export default {
         this.direction = 'forword';
       }
     },
+  },
+  created() {
+    const savedToken = user.getToken();
+    const saveUser = user.getUser();
+    const path = this.$route.path;
+
+    this.$store.commit('ADDPATHRECORD', { path });
+
+    if (savedToken) {
+      this.$store.commit('UPDATE_TOKEN', { token: savedToken });
+    }
+
+    if (saveUser.loginname) {
+      this.$store.dispatch('updateUserInfo', saveUser.loginname);
+    }
   },
 };
 </script>

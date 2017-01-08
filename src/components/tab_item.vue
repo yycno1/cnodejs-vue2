@@ -8,12 +8,10 @@ export default {
   data() {
     return {
       index: -1,
+      selected: false,
     };
   },
   props: {
-    selected: {
-      type: Boolean,
-    },
     activeStyle: {
       type: Object,
     },
@@ -45,7 +43,6 @@ export default {
 .tab-item{
   flex:1;
   text-align: center;
-  height: 100%;
   color: #aaa;
 
   &.active{

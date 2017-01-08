@@ -7,7 +7,10 @@ Vue.use(Vuex);
 /* eslint-disable no-shadow */
 /* eslint-disable no-param-reassign*/
 const state = {
-  userinfo: {},
+  user: {
+    info: {},
+    token: '',
+  },
   pathRecord: [],
   transitionStatus: {
     enterPath: '',
@@ -16,11 +19,15 @@ const state = {
 };
 
 const mutations = {
-  UPDATE_USERINFO(state, payload) {
-    state.userinfo = payload.info;
+  UPDATE_USERINFO({ user }, payload) {
+    user.info = payload.info;
   },
-  CLEAR_USERINFO(state) {
-    state.userinfo = {};
+  CLEAR_USER({ user }) {
+    user.info = {};
+    user.token = '';
+  },
+  UPDATE_TOKEN({ user }, payload) {
+    user.token = payload.token;
   },
   ADDPATHRECORD(state, payload) {
     state.pathRecord.push(payload.path);
@@ -35,14 +42,15 @@ const mutations = {
 
 const actions = {
   updateUserInfo({ commit }, loginname) {
-    return api.getUserInfo(loginname)
+    return api.fetchUserInfo(loginname)
       .then(res => commit('UPDATE_USERINFO', { info: res.data.data }));
   },
 };
 
 const getters = {
-  isLogin: state => !!state.userinfo.loginname,
-  userinfo: state => state.userinfo,
+  isLogin: state => !!state.user.token,
+  userinfo: state => state.user.info,
+  token: state => state.user.token,
   pathRecord: state => state.pathRecord,
   transitionStatus: state => state.transitionStatus,
 };

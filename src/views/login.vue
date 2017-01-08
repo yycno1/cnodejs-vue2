@@ -42,7 +42,9 @@ export default {
       api.login(this.token)
         .then((res) => {
           user.saveUser(res.data);
+          user.saveToken(this.token);
           this.updateUserInfo(res.data.loginname);
+          this.$store.commit('UPDATE_TOKEN', { token: this.token });
           this.$router.go(-1);
         })
         .catch((res) => {
