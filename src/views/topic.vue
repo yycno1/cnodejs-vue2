@@ -5,7 +5,7 @@
       @leftIconClick="toggleSidebar">
     </my-header>
     <div class="show-loading" v-if="loading"></div>
-    <ul class="topic-list" v-else>
+    <ul class="topic-list" v-else v-infinity="infinityCall">
       <li v-for="topic in topics" class="clearfix">
         <router-link :to="'/topic/'+topic.id" class="topic-link">
           <div class="topic-title text-overflow"
@@ -52,6 +52,7 @@ import Sidebar from 'components/sidebar';
 import { mapGetters } from 'vuex';
 import { getLabel, formatLabel } from '../common/filter';
 import api from '../common/api';
+import infinity from '../directives/infinity';
 
 export default{
   name: 'topic',
@@ -61,7 +62,7 @@ export default{
       topics: [],
       pageInfo: {
         page: 1,
-        limit: 30,
+        limit: 10,
         tab: 'all',
         mdrender: false,
       },
@@ -82,43 +83,57 @@ export default{
     MyHeader,
     Sidebar,
   },
+  directives: {
+    [infinity.name]: infinity,
+  },
   methods: {
     /* eslint-disable no-console */
     toggleSidebar() {
       this.showSidebar = !this.showSidebar;
     },
     initData() {
-      api.fetchTopic(this.pageInfo)
-        .then((res) => {
-          this.topics = res.data.data;
+      return api.fetchTopic(this.pageInfo)
+        .then(({ data }) => {
+          if (data.success) {
+            this.topics = data.data;
+            this.pageInfo.page += 1;
+          }
         });
     },
     closeSidebar() {
       this.showSidebar = false;
     },
-    getLabel,
-    formatLabel,
-  },
-  created() {
-    const tab = this.$route.query.tab;
-    if (!tab) {
-      this.pageInfo.tab = 'all';
-    } else {
-      this.pageInfo.tab = tab;
-    }
-    this.initData();
-  },
-  watch: {
-    $route(to) {
-      const tab = to.query.tab;
+    setTab() {
+      const tab = this.$route.query.tab;
       if (!tab) {
         this.pageInfo.tab = 'all';
       } else {
         this.pageInfo.tab = tab;
       }
+    },
+    infinityCall() {
+      return api.fetchTopic(this.pageInfo)
+        .then(({ data }) => {
+          if (data.success) {
+            this.topics = this.topics.concat(data.data);
+            this.pageInfo.page += 1;
+          }
+        });
+    },
+    getLabel,
+    formatLabel,
+  },
+  watch: {
+    $route() {
+      this.setTab();
       this.topics = [];
+      this.pageInfo.page = 1;
       this.initData();
     },
+  },
+  created() {
+    this.setTab();
+    this.initData();
   },
 };
 </script>
