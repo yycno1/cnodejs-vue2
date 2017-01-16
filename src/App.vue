@@ -10,13 +10,13 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import user from './common/user';
 
 export default {
   name: 'app',
   data() {
     return {
-      direction: 'forword',
       toPath: '',
       fromPath: '',
     };
@@ -30,6 +30,7 @@ export default {
     pathRecord() {
       return this.$store.getters.pathRecord;
     },
+    ...mapGetters(['direction']),
   },
   methods: {
     beforeEnter() {
@@ -55,23 +56,14 @@ export default {
   },
   watch: {
     $route(to, from) {
-      const toPath = this.toPath = to.path;
-      const fromPath = this.fromPath = from.path;
-      if (this.pathRecord.indexOf(toPath) > -1) {
-        this.$store.commit('REMOVEPATHRECORD', { path: fromPath });
-        this.direction = 'backword';
-      } else {
-        this.$store.commit('ADDPATHRECORD', { path: toPath });
-        this.direction = 'forword';
-      }
+      this.toPath = to.path;
+      this.from = from.path;
     },
   },
+
   created() {
     const savedToken = user.getToken();
     const saveUser = user.getUser();
-    const path = this.$route.path;
-
-    this.$store.commit('ADDPATHRECORD', { path });
 
     if (savedToken) {
       this.$store.commit('UPDATE_TOKEN', { token: savedToken });

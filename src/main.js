@@ -17,6 +17,34 @@ Vue.use(http);
 for (const key of Object.keys(filters)) {
   Vue.filter(key, filters[key]);
 }
+const storage = window.sessionStorage;
+let count = storage.getItem('count') || 0;
+storage.setItem('/', 0);
+
+router.beforeEach((to, from, next) => {
+  const toPath = to.path;
+  const fromPath = from.path;
+
+  const toIndex = storage.getItem(toPath);
+  const fromIndex = storage.getItem(fromPath);
+
+  if (toIndex) {
+    if (!fromIndex || toIndex > fromIndex) {
+      store.commit('UPDATE_DIRECTION', 'forword');
+      console.log('forword');
+    } else {
+      store.commit('UPDATE_DIRECTION', 'backword');
+      console.log('backword');
+    }
+  } else {
+    count += 1;
+    storage.setItem('count', count);
+    storage.setItem(toPath, count);
+    store.commit('UPDATE_DIRECTION', 'forword');
+    console.log('forword');
+  }
+  setTimeout(next, 10);
+});
 
 /* eslint-disable no-new */
 new Vue({

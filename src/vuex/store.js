@@ -11,7 +11,7 @@ const state = {
     info: {},
     token: '',
   },
-  pathRecord: [],
+  direction: 'forword',
   transitionStatus: {
     enterPath: '',
     leavePath: '',
@@ -29,14 +29,11 @@ const mutations = {
   UPDATE_TOKEN({ user }, payload) {
     user.token = payload.token;
   },
-  ADDPATHRECORD(state, payload) {
-    state.pathRecord.push(payload.path);
-  },
-  REMOVEPATHRECORD({ pathRecord }, payload) {
-    pathRecord.splice(pathRecord.indexOf(payload.path), 1);
-  },
   UPDATE_TRANSITION_STATUS({ transitionStatus }, payload) {
     transitionStatus = Object.assign(transitionStatus, payload);
+  },
+  UPDATE_DIRECTION(state, direction) {
+    state.direction = direction;
   },
 };
 
@@ -51,8 +48,8 @@ const getters = {
   isLogin: state => !!state.user.token,
   userinfo: state => state.user.info,
   token: state => state.user.token,
-  pathRecord: state => state.pathRecord,
   transitionStatus: state => state.transitionStatus,
+  direction: state => state.direction,
 };
 
 export default new Vuex.Store({
