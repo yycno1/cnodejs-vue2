@@ -5,8 +5,8 @@
       @leftIconClick="goBack"
       :title="title">
     </my-header>
-    <div class="show-loading" v-if="loading"></div>
-    <div class="topic-detail-container" v-else>
+    <loading :ready="!fetching" @loadingChange="handleLoadingChange"></loading>
+    <div class="topic-detail-container" v-show="showContent">
       <section class="info-wrap">
         <h2 class="topic-title" v-text="content.title"></h2>
         <div class="author-info">
@@ -74,6 +74,7 @@
 
 <script>
 import MyHeader from 'components/my_header';
+import Loading from 'components/loading';
 import { mapGetters } from 'vuex';
 import { getLabel } from '../common/filter';
 import api from '../common/api';
@@ -90,8 +91,8 @@ export default {
         }],
       },
       isCollect: false,
-      fetching: true,
-      path: this.$route.path,
+      fetching: false,
+      showContent: false,
     };
   },
   computed: {
@@ -101,16 +102,15 @@ export default {
     label() {
       return getLabel(this.content);
     },
-    loading() {
-      return this.fetching || this.transitionStatus.enterPath === this.path;
-    },
     ...mapGetters(['transitionStatus', 'token', 'isLogin']),
   },
   components: {
     MyHeader,
+    Loading,
   },
   methods: {
     initData(id) {
+      this.fetching = true;
       return api.fetchTopicDetail(id, this.token).then((res) => {
         this.content = res.data.data;
         this.isCollect = this.content.is_collect;
@@ -195,14 +195,17 @@ export default {
       }
       return isLogin;
     },
+    handleLoadingChange(payload) {
+      this.showContent = payload.isLoaded;
+    },
   },
   created() {
     const id = this.$route.params.id;
     this.initData(id);
   },
   mounted() {
-    this.$watch('loading', (newVal) => {
-      if (!newVal) {
+    this.$watch('showContent', (newVal) => {
+      if (newVal) {
         this.interceptMDLink();
       }
     }, { immediate: true });

@@ -4,8 +4,8 @@
       :title="title"
       @leftIconClick="toggleSidebar">
     </my-header>
-    <div class="show-loading" v-if="loading"></div>
-    <ul class="topic-list" v-else v-infinity="infinityCall">
+    <loading :ready="!fetching" @loadingChange="handleLoadingChange"></loading>
+    <ul class="topic-list" v-show="showContent" v-infinity="infinityCall">
       <li v-for="topic in topics" class="clearfix">
         <router-link :to="'/topic/'+topic.id" class="topic-link">
           <div class="topic-title text-overflow"
@@ -49,6 +49,7 @@
 <script>
 import MyHeader from 'components/my_header';
 import Sidebar from 'components/sidebar';
+import Loading from 'components/loading';
 import { mapGetters } from 'vuex';
 import { getLabel, formatLabel } from '../common/filter';
 import api from '../common/api';
@@ -67,6 +68,8 @@ export default{
         mdrender: false,
       },
       showSidebar: false,
+      fetching: false,
+      showContent: false,
       path: this.$route.path,
     };
   },
@@ -82,6 +85,7 @@ export default{
   components: {
     MyHeader,
     Sidebar,
+    Loading,
   },
   directives: {
     [infinity.name]: infinity,
@@ -92,12 +96,16 @@ export default{
       this.showSidebar = !this.showSidebar;
     },
     initData() {
-      return api.fetchTopic(this.pageInfo)
+      this.fetching = true;
+      api.fetchTopic(this.pageInfo)
         .then(({ data }) => {
           if (data.success) {
             this.topics = data.data;
             this.pageInfo.page += 1;
           }
+        })
+        .finally(() => {
+          this.fetching = false;
         });
     },
     closeSidebar() {
@@ -112,13 +120,16 @@ export default{
       }
     },
     infinityCall() {
-      return api.fetchTopic(this.pageInfo)
+      api.fetchTopic(this.pageInfo)
         .then(({ data }) => {
           if (data.success) {
-            this.topics = this.topics.concat(data.data);
+            this.topics = [...this.topics, ...data.data];
             this.pageInfo.page += 1;
           }
         });
+    },
+    handleLoadingChange(payload) {
+      this.showContent = payload.isLoaded;
     },
     getLabel,
     formatLabel,

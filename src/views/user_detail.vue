@@ -5,75 +5,78 @@
       @leftIconClick="goBack"
       :title="title">
     </my-header>
-    <div class="user-detail-header">
-      <div class="user-photo">
-        <img :src="info.avatar_url">
-      </div>
-      <p class="user-name">{{info.loginname}}</p>
-      <p class="user-email"><a :href="'https://github.com/' + info.githubUsername">{{info.githubUsername + '@github.com'}}</a></p>
-      <div class="user-point-wrap">
-        <span class="register-time"><span>注册时间：{{info.create_at | formatTime('yyyy-MM-dd')}}</span></span>
-        <span class="user-ponit">积分：<span>{{info.score}}</span></span>
-      </div>
-    </div>
-    <div class="user-detail-content">
-      <tab
-        :selected="0"
-        :active-style="tabItemActiveStyle"
-        :item-style="tabItemStyle"
-        @itemSelected="handleItemSelected">
-        <tab-item>最近回复</tab-item>
-        <tab-item>最新发布</tab-item>
-        <tab-item>话题收藏</tab-item>
-      </tab>
-      <div class="tab-content">
-        <div v-show="selectedIndex === 0">
-          <ul>
-            <li class="topic-list" v-for="topic in info.recent_replies">
-              <router-link :to="'/topic/' + topic.id" class="topic-link clearfixed">
-                <div class="author-phote"><img :src="topic.author.avatar_url"></div>
-                <div class="topic-info">
-                  <div class="text-overflow">{{topic.title}}</div>
-                  <div class="topic-info-row">
-                    <span>{{topic.author.loginname}}</span>
-                    <span>{{topic.last_reply_at | formatTopicTime}}</span>
-                  </div>
-                </div>
-              </router-link>
-            </li>
-          </ul>
+    <loading :ready="!fetching" @loadingChange="handleLoadingChange"></loading>
+    <div v-show="showContent">
+      <div class="user-detail-header">
+        <div class="user-photo">
+          <img :src="info.avatar_url">
         </div>
-        <div v-show="selectedIndex === 1">
-          <ul>
-            <li class="topic-list" v-for="topic in info.recent_topics">
-              <router-link :to="'/topic/' + topic.id" class="topic-link clearfixed">
-                <div class="author-phote"><img :src="topic.author.avatar_url"></div>
-                <div class="topic-info">
-                  <div class="text-overflow">{{topic.title}}</div>
-                  <div class="topic-info-row">
-                    <span>{{topic.author.loginname}}</span>
-                    <span>{{topic.last_reply_at | formatTopicTime}}</span>
-                  </div>
-                </div>
-              </router-link>
-            </li>
-          </ul>
+        <p class="user-name">{{info.loginname}}</p>
+        <p class="user-email"><a :href="'https://github.com/' + info.githubUsername">{{info.githubUsername + '@github.com'}}</a></p>
+        <div class="user-point-wrap">
+          <span class="register-time"><span>注册时间：{{info.create_at | formatTime('yyyy-MM-dd')}}</span></span>
+          <span class="user-ponit">积分：<span>{{info.score}}</span></span>
         </div>
-        <div v-show="selectedIndex === 2">
-          <ul>
-            <li class="topic-list" v-for="topic in collectedTopics">
-              <router-link :to="'/topic/' + topic.id" class="topic-link clearfixed">
-                <div class="author-phote"><img :src="topic.author.avatar_url"></div>
-                <div class="topic-info">
-                  <div class="text-overflow">{{topic.title}}</div>
-                  <div class="topic-info-row">
-                    <span>{{topic.author.loginname}}</span>
-                    <span>{{topic.last_reply_at | formatTopicTime}}</span>
+      </div>
+      <div class="user-detail-content">
+        <tab
+          :selected="0"
+          :active-style="tabItemActiveStyle"
+          :item-style="tabItemStyle"
+          @itemSelected="handleItemSelected">
+          <tab-item>最近回复</tab-item>
+          <tab-item>最新发布</tab-item>
+          <tab-item>话题收藏</tab-item>
+        </tab>
+        <div class="tab-content">
+          <div v-show="selectedIndex === 0">
+            <ul>
+              <li class="topic-list" v-for="topic in info.recent_replies">
+                <router-link :to="'/topic/' + topic.id" class="topic-link clearfixed">
+                  <div class="author-phote"><img :src="topic.author.avatar_url"></div>
+                  <div class="topic-info">
+                    <div class="text-overflow">{{topic.title}}</div>
+                    <div class="topic-info-row">
+                      <span>{{topic.author.loginname}}</span>
+                      <span>{{topic.last_reply_at | formatTopicTime}}</span>
+                    </div>
                   </div>
-                </div>
-              </router-link>
-            </li>
-          </ul>
+                </router-link>
+              </li>
+            </ul>
+          </div>
+          <div v-show="selectedIndex === 1">
+            <ul>
+              <li class="topic-list" v-for="topic in info.recent_topics">
+                <router-link :to="'/topic/' + topic.id" class="topic-link clearfixed">
+                  <div class="author-phote"><img :src="topic.author.avatar_url"></div>
+                  <div class="topic-info">
+                    <div class="text-overflow">{{topic.title}}</div>
+                    <div class="topic-info-row">
+                      <span>{{topic.author.loginname}}</span>
+                      <span>{{topic.last_reply_at | formatTopicTime}}</span>
+                    </div>
+                  </div>
+                </router-link>
+              </li>
+            </ul>
+          </div>
+          <div v-show="selectedIndex === 2">
+            <ul>
+              <li class="topic-list" v-for="topic in collectedTopics">
+                <router-link :to="'/topic/' + topic.id" class="topic-link clearfixed">
+                  <div class="author-phote"><img :src="topic.author.avatar_url"></div>
+                  <div class="topic-info">
+                    <div class="text-overflow">{{topic.title}}</div>
+                    <div class="topic-info-row">
+                      <span>{{topic.author.loginname}}</span>
+                      <span>{{topic.last_reply_at | formatTopicTime}}</span>
+                    </div>
+                  </div>
+                </router-link>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -81,6 +84,7 @@
 </template>
 <script>
 import MyHeader from 'components/my_header';
+import Loading from 'components/loading';
 import Tab from 'components/tab';
 import TabItem from 'components/tab_item';
 import api from '../common/api';
@@ -101,12 +105,15 @@ export default {
       },
       collectedTopics: [],
       selectedIndex: 0,
+      fetching: false,
+      showContent: false,
     };
   },
   components: {
     MyHeader,
     Tab,
     TabItem,
+    Loading,
   },
   methods: {
     goBack() {
@@ -114,11 +121,15 @@ export default {
     },
     getInfo() {
       const name = this.$route.params.username;
+      this.fetching = true;
       api.fetchUserInfo(name)
         .then(({ data }) => {
           if (data.success) {
             this.info = data.data;
           }
+        })
+        .finally(() => {
+          this.fetching = false;
         });
 
       api.fetchCollectedTopics(name)
@@ -130,6 +141,9 @@ export default {
     },
     handleItemSelected(data) {
       this.selectedIndex = data.selected;
+    },
+    handleLoadingChange(payload) {
+      this.showContent = payload.isLoaded;
     },
   },
   created() {
