@@ -1,43 +1,57 @@
-import overlayManager from '../common/overlayManager';
+import popupManager from '../common/popupManager';
 
 export default{
+  data() {
+    return {
+      show: false,
+    };
+  },
   props: {
-    show: {
-      type: Boolean,
-      default: false,
-    },
-    overlay: {
+    value: Boolean,
+    showModal: {
       type: Boolean,
       default: true,
     },
-    overlayColor: {
+    modalColor: {
       type: String,
       default: '#000',
     },
-    overlayOpacity: {
+    modalOpacity: {
       type: Number,
       default: 0.4,
     },
   },
   mounted() {
-    if (this.overlay && this.show) {
-      overlayManager.onPopupOpen(this);
+    if (this.value !== undefined) {
+      this.show = this.value;
+    }
+    if (this.showModal && this.show) {
+      popupManager.onPopupOpen(this);
     }
   },
+  // mounted() {
+  //   if (this.showModal && this.show) {
+  //     popupManager.onPopupOpen(this);
+  //   }
+  // },
   beforeDestroy() {
-    if (this.overlay) {
-      overlayManager.onPopupClose(this);
+    if (this.showModal) {
+      popupManager.onPopupClose(this);
     }
   },
   watch: {
+    value(newVal) {
+      this.show = newVal;
+    },
     show(newVal) {
-      if (!this.overlay) {
+      this.$emit('input', newVal);
+      if (!this.showModal) {
         return;
       }
       if (newVal) {
-        overlayManager.onPopupOpen(this);
+        popupManager.onPopupOpen(this);
       } else {
-        overlayManager.onPopupClose(this);
+        popupManager.onPopupClose(this);
       }
     },
   },

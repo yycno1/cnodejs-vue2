@@ -16,23 +16,29 @@
       </div>
       <p class="login-tip">如何获取Access Token?</p>
     </div>
+    <alert v-model="alert">asdajksdhnkasdhk</alert>
   </div>
 </template>
 <script>
 import MyHeader from 'components/my_header';
+import Alert from 'components/alert';
 import { mapActions } from 'vuex';
 import api from '../common/api';
 import user from '../common/user';
 
 export default {
+  name: 'login',
+
   data() {
     return {
       title: '登录',
       token: '',
+      alert: true,
     };
   },
   components: {
     MyHeader,
+    Alert,
   },
   methods: {
     goBack() {

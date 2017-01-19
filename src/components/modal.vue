@@ -1,6 +1,6 @@
 <template>
   <transition name="modal-fade">
-    <div class="overlay" @click="handleClick" :style="style" v-if="show"></div>
+    <div class="modal" :style="style" @click="handleClick" v-if="show"></div>
   </transition>
 </template>
 <script>
@@ -10,6 +10,10 @@ export default{
       type: Boolean,
       default: false,
     },
+    zIndex: {
+      type: Number,
+      default: 1000,
+    },
     bgColor: {
       type: String,
       default: '#000',
@@ -18,34 +22,25 @@ export default{
       type: Number,
       default: 0.4,
     },
-    zIndex: {
-      type: Number,
-      default: 10000,
-    },
-    overlayClick: {
-      type: Function,
-    },
   },
   computed: {
     style() {
       return {
+        zIndex: this.zIndex,
         backgroundColor: this.bgColor,
         opacity: this.opacity,
-        zIndex: this.zIndex,
       };
     },
   },
   methods: {
     handleClick() {
-      if (typeof this.overlayClick === 'function') {
-        this.overlayClick();
-      }
+      this.$emit('modalClick');
     },
   },
 };
 </script>
 <style lang="scss" scoped>
-.overlay{
+.modal{
   position: fixed;
   left: 0;
   right: 0;

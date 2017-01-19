@@ -40,8 +40,8 @@
         </router-link>
       </li>
     </ul>
-    <sidebar :show="showSidebar"
-      @overlayClick="closeSidebar"
+    <sidebar v-model="showSidebar"
+      @modalClick="closeSidebar"
       @navItemClick="closeSidebar">
     </sidebar>
   </div>
