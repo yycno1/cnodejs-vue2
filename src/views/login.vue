@@ -14,14 +14,21 @@
       <div class="button-box">
         <button type="button" class="login-btn" @click="getLogin">登录</button>
       </div>
-      <p class="login-tip">如何获取Access Token?</p>
+      <p class="login-tip" @click="howGetAccessToken">如何获取Access Token?</p>
     </div>
-    <alert v-model="alert">asdajksdhnkasdhk</alert>
+    <confirm
+      v-model="confirm"
+      @open="print('open')"
+      @close="print('close')"
+      @confirm="print('confirm')"
+      @cancel="print('cancel')">
+      是否获取Access Token?
+    </confirm>
   </div>
 </template>
 <script>
 import MyHeader from 'components/my_header';
-import Alert from 'components/alert';
+import Confirm from 'components/confirm';
 import { mapActions } from 'vuex';
 import api from '../common/api';
 import user from '../common/user';
@@ -33,12 +40,12 @@ export default {
     return {
       title: '登录',
       token: '',
-      alert: true,
+      confirm: false,
     };
   },
   components: {
     MyHeader,
-    Alert,
+    Confirm,
   },
   methods: {
     goBack() {
@@ -57,6 +64,12 @@ export default {
           /* eslint-disable no-console */
           console.log(res);
         });
+    },
+    howGetAccessToken() {
+      this.confirm = true;
+    },
+    print(text) {
+      console.log(text);
     },
     ...mapActions(['updateUserInfo']),
   },

@@ -65,6 +65,7 @@ export default{
     if (i === 0) {
       this.closeModal();
     } else if (i === len - 1) {
+      this.updateZIndex(popupInstances[i - 1]);
       this.updateModal(popupInstances[i - 1]);
     }
   },
@@ -79,9 +80,10 @@ export default{
     const modalInstance = this.getModal();
     modalInstance.bgColor = instance.modalColor;
     modalInstance.opacity = instance.modalOpacity;
+    modalInstance.zIndex = instance.modalZIndex;
+    modalInstance.transitionDuration = instance.modalTransitionDuration;
   },
   updateZIndex(instance) {
-    const modal = this.getModal();
     // 是否覆盖其他弹出层
     if (instance.cover) {
       instance.modalZIndex = this.nextZIndex();
@@ -89,7 +91,6 @@ export default{
       instance.modalZIndex = this.modalZIndex;
     }
     instance.$el.style.zIndex = this.nextZIndex();
-    modal.zIndex = instance.modalZIndex;
   },
   // 移除遮盖层
   closeModal() {

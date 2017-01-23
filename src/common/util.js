@@ -39,4 +39,8 @@ export default{
     }
     return throttleFunc;
   },
+
+  typeof(obj) {
+    return Object.prototype.toString.call(obj).substring(8).replace(']', '').toLowerCase();
+  },
 };

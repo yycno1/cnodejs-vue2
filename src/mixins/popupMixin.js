@@ -20,6 +20,15 @@ export default{
       type: Number,
       default: 0.4,
     },
+    modalTransitionDuration: Number,
+    closeOnClickModal: {
+      type: Boolean,
+      default: false,
+    },
+    cover: {
+      type: Boolean,
+      default: true,
+    },
   },
   mounted() {
     if (this.value !== undefined) {
@@ -29,11 +38,6 @@ export default{
       popupManager.onPopupOpen(this);
     }
   },
-  // mounted() {
-  //   if (this.showModal && this.show) {
-  //     popupManager.onPopupOpen(this);
-  //   }
-  // },
   beforeDestroy() {
     if (this.showModal) {
       popupManager.onPopupClose(this);

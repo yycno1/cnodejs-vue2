@@ -1,5 +1,5 @@
 <template>
-  <transition name="modal-fade">
+  <transition name="fade">
     <div class="modal" :style="style" @click="handleClick" v-if="show"></div>
   </transition>
 </template>
@@ -22,6 +22,10 @@ export default{
       type: Number,
       default: 0.4,
     },
+    transitionDuration: {
+      type: Number,
+      default: 0.5,
+    },
   },
   computed: {
     style() {
@@ -29,6 +33,7 @@ export default{
         zIndex: this.zIndex,
         backgroundColor: this.bgColor,
         opacity: this.opacity,
+        transitionDuration: `${this.transitionDuration}s`,
       };
     },
   },
@@ -48,13 +53,5 @@ export default{
   bottom: 0;
   background-color: #000;
   opacity: 0.4;
-}
-.modal-fade-enter,
-.modal-fade-leave-active{
-  opacity: 0 !important;
-}
-.modal-fade-enter-active,
-.modal-fade-leave-active{
-  transition: opacity .5s;
 }
 </style>

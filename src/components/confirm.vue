@@ -12,7 +12,8 @@
     @close="$emit('close')">
     <slot></slot>
     <div slot="footer">
-      <a class="dialog-button confirm-button" :style="{ color: buttonColor }" @click="showDialog = false">{{buttonText}}</a>
+      <a class="dialog-button cancel-button" :style="{ color: cancelBtnColor }" @click="handleCancel">{{cancelBtnText}}</a>
+      <a class="dialog-button confirm-button" :style="{ color: confirmBtnColor }" @click="handleConfirm">{{confirmBtnText}}</a>
     </div>
   </x-dialog>
 </template>
@@ -21,7 +22,7 @@
 import XDialog from './dialog';
 
 export default{
-  name: 'alert',
+  name: 'confirm',
 
   data() {
     return {
@@ -31,11 +32,16 @@ export default{
 
   props: {
     value: Boolean,
-    buttonText: {
+    confirmBtnText: {
       type: String,
       default: '确定',
     },
-    buttonColor: String,
+    cancelBtnText: {
+      type: String,
+      default: '取消',
+    },
+    confirmBtnColor: String,
+    cancelBtnColor: String,
     closeOnClickModal: {
       type: Boolean,
       default: false,
@@ -63,6 +69,17 @@ export default{
     },
   },
 
+  methods: {
+    handleConfirm() {
+      this.$emit('confirm');
+      this.showDialog = false;
+    },
+    handleCancel() {
+      this.$emit('cancel');
+      this.showDialog = false;
+    },
+  },
+
   created() {
     if (this.value !== undefined) {
       this.showDialog = this.value;
@@ -76,8 +93,12 @@ export default{
 .dialog-button{
   margin: 0 20px;
   font-size: 12px;
+  color: $mainColor;
 }
 .confirm-button{
   color: $mainColor;
+}
+.cancel-button{
+  color: #777;
 }
 </style>
