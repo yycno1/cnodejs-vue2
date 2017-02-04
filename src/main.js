@@ -1,6 +1,8 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import http from 'vue-resource';
+import Alert from './plugins/alert';
+import Confirm from './plugins/confirm';
 
 import App from './App';
 
@@ -13,6 +15,8 @@ import './assets/style/common.scss';
 
 Vue.use(VueRouter);
 Vue.use(http);
+Vue.use(Alert);
+Vue.use(Confirm);
 
 for (const key of Object.keys(filters)) {
   Vue.filter(key, filters[key]);

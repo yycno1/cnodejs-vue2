@@ -16,14 +16,6 @@
       </div>
       <p class="login-tip" @click="howGetAccessToken">如何获取Access Token?</p>
     </div>
-    <confirm
-      v-model="confirm"
-      @open="print('open')"
-      @close="print('close')"
-      @confirm="print('confirm')"
-      @cancel="print('cancel')">
-      是否获取Access Token?
-    </confirm>
   </div>
 </template>
 <script>
@@ -40,7 +32,6 @@ export default {
     return {
       title: '登录',
       token: '',
-      confirm: false,
     };
   },
   components: {
@@ -52,6 +43,10 @@ export default {
       this.$router.go(-1);
     },
     getLogin() {
+      if (this.token === '') {
+        this.$alert('请输入token');
+        return;
+      }
       api.login(this.token)
         .then((res) => {
           user.saveUser(res.data);
@@ -62,14 +57,11 @@ export default {
         })
         .catch((res) => {
           /* eslint-disable no-console */
-          console.log(res);
+          this.$alert(res);
         });
     },
     howGetAccessToken() {
-      this.confirm = true;
-    },
-    print(text) {
-      console.log(text);
+      this.$alert('.......');
     },
     ...mapActions(['updateUserInfo']),
   },

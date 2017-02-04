@@ -7,7 +7,6 @@
     :dialogTransition="dialogTransition"
     :cover="cover"
     v-model="showDialog"
-    @modalClick="$emit('modalClick')"
     @open="$emit('open')"
     @close="$emit('close')">
     <slot></slot>

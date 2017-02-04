@@ -97,8 +97,10 @@ export default {
       this.$emit('close');
     },
     logout() {
-      user.delUser();
-      this.clearUserInfo();
+      this.$confirm('确定退出登录?', () => {
+        user.delUser();
+        this.clearUserInfo();
+      });
     },
     overlayClick() {
       this.$emit('overlayClick');

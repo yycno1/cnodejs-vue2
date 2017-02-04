@@ -191,7 +191,9 @@ export default {
     checkLogin() {
       const isLogin = this.isLogin;
       if (!isLogin) {
-        console.log('该操作需要登录账户，是否现在登录?');
+        this.$confirm('该操作需要登录账户，是否现在登录?', () => {
+          this.$router.push('/login');
+        });
       }
       return isLogin;
     },

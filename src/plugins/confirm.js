@@ -1,7 +1,7 @@
-import Alert from 'components/alert';
+import Alert from 'components/confirm';
 import util from '../common/util';
 
-const nameSpace = '$alert';
+const nameSpace = '$confirm';
 const dialogContentSelector = '.dialog-content';
 
 let instance;
@@ -17,12 +17,12 @@ export default{
       }
 
       if (!instance) {
-        const AlertComponent = Vue.extend(Alert);
-        instance = new AlertComponent().$mount();
+        const ConfirmComponent = Vue.extend(Alert);
+        instance = new ConfirmComponent().$mount();
         document.body.appendChild(instance.$el);
       } else {
-        instance.$off('open');
-        instance.$off('close');
+        instance.$off('confirm');
+        instance.$off('cancel');
       }
 
       const type1 = util.typeof(args[0]);
@@ -32,7 +32,7 @@ export default{
         options = args[0];
       } else {
         if (type2 === 'function') {
-          options.onClose = args[1];
+          options.onConfirm = args[1];
         } else if (type2 === 'object') {
           options = args[1];
         }
@@ -42,10 +42,10 @@ export default{
       for (const key of Object.keys(options)) {
         if (key === 'content') {
           instance.$el.querySelector(dialogContentSelector).innerHTML = options[key];
-        } else if (key === 'onClose') {
-          instance.$on('close', options[key]);
-        } else if (key === 'onOpen') {
-          instance.$on('open', options[key]);
+        } else if (key === 'onConfirm') {
+          instance.$on('confirm', options[key]);
+        } else if (key === 'onCancel') {
+          instance.$on('cancel', options[key]);
         } else {
           instance[key] = options[key];
         }
