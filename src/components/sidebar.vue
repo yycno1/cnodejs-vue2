@@ -15,7 +15,7 @@
       </div>
       <div class="sidebar-body">
         <ul class="nav-list">
-          <li v-for="item of navList" :class="item.liClass" @click="navItemClick">
+          <li v-for="(item, index) of navList" :class="[item.liClass, {active: index === activeIndex}]" @click="navItemClick">
             <router-link :to="item.to">
               <i class="iconfont" :class="item.iconClass"></i>
               <span v-text="item.text"></span>
@@ -74,6 +74,7 @@ export default {
           liClass: '',
         },
       ],
+      activeIndex: -1,
     };
   },
   computed: {
@@ -112,6 +113,23 @@ export default {
       this.$store.commit('CLEAR_USER');
     },
     ...mapActions(['updateUserInfo']),
+  },
+
+  created() {
+    this.$watch('$route', (newRoute) => {
+      for (let i = 0, len = this.navList.length; i < len; i += 1) {
+        const item = this.navList[i];
+        if (newRoute.fullPath === item.to) {
+          this.activeIndex = i;
+          break;
+        } else if (newRoute.fullPath === '/') {
+          this.activeIndex = 0;
+          break;
+        }
+      }
+    }, {
+      immediate: true,
+    });
   },
 };
 </script>
@@ -179,12 +197,25 @@ export default {
 }
 
 .sidebar-body{
-  padding: 15px 20px;
+  padding: 15px 0;
 
-  .nav-list li{
-    padding: 15px 0;
+  .nav-list li {
+    padding: 0 20px;
 
-    &.border-bottom{
+    &.active{
+      background: #eee;
+
+      a{
+        color: $mainColor;
+      }
+    }
+
+    a {
+      padding: 12px 0;
+      display: block;
+    }
+
+    &.border-bottom a{
       border-bottom: 1px solid #eee;
     }
 

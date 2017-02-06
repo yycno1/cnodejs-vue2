@@ -5,8 +5,11 @@ function saveUser(user) {
 }
 
 function getUser() {
-  const user = JSON.parse(window.localStorage.getItem('user'));
-  return user || '';
+  const userStr = window.localStorage.getItem('user');
+  if (userStr === '' || userStr === null) {
+    return '';
+  }
+  return JSON.parse(userStr);
 }
 
 function saveToken(token) {
