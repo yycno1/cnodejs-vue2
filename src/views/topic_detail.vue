@@ -6,7 +6,7 @@
       :title="title">
     </my-header>
     <loading :ready="!fetching" @loadingChange="handleLoadingChange"></loading>
-    <div class="topic-detail-container" v-show="showContent">
+    <div class="topic-detail-container" v-show="showContent" ref="topicDetailContainer">
       <section class="info-wrap">
         <h2 class="topic-title" v-text="content.title"></h2>
         <div class="author-info">
@@ -57,9 +57,9 @@
                 </div>
               </div>
               <div class="info-right">
-                <i class="iconfont icon-up" @click="toggleUps(reply.reply_id)"></i>
+                <i class="iconfont icon-up" @click="toggleUps(reply.id)"></i>
                 <span class="up-count" v-text="reply.ups.length"></span>
-                <i class="iconfont icon-reply"></i>
+                <i class="iconfont icon-reply" @click="handleReplyReplies(reply)"></i>
               </div>
             </div>
             <div class="reply-content">
@@ -69,12 +69,25 @@
         </ul>
       </section>
     </div>
+    <x-dialog v-model="showReplyInput">
+      <p class="text-overflow">回复 <span>{{replyTarget}}</span></p>
+      <div class="reply-input">
+        <textarea v-model="replyContent" placeholder="说点什么吧..."></textarea>
+      </div>
+      <div slot="footer">
+        <a class="dialog-button cancel-button" @click="showReplyInput = false">取消</a>
+        <a class="dialog-button confirm-button" @click="handleSubmit">确定</a>
+      </div>
+    </x-dialog>
+    <reply-button v-show="showReplyButton" @click.native="handleReplyTopic"></reply-button>
   </div>
 </template>
 
 <script>
 import MyHeader from 'components/my_header';
 import Loading from 'components/loading';
+import XDialog from 'components/dialog';
+import ReplyButton from 'components/replyButton';
 import { mapGetters } from 'vuex';
 import { getLabel } from '../common/filter';
 import api from '../common/api';
@@ -95,6 +108,13 @@ export default {
       isCollect: false,
       fetching: false,
       showContent: false,
+      showReplyInput: false,
+      replyType: 0, // 0: 回复话题 1: 回复评论
+      replyContent: '',
+      replyTarget: '',
+      reply_id: '',
+
+      showReplyButton: true,
     };
   },
   computed: {
@@ -109,6 +129,8 @@ export default {
   components: {
     MyHeader,
     Loading,
+    XDialog,
+    ReplyButton,
   },
   methods: {
     initData(id) {
@@ -199,8 +221,60 @@ export default {
       }
       return isLogin;
     },
+    listenScroll() {
+      const node = this.$refs.topicDetailContainer;
+      const vm = this;
+      let scrollTop = node.scrollTop;
+
+      function handleScroll() {
+        const newScrollTop = node.scrollTop;
+        if (newScrollTop === scrollTop) {
+          return;
+        }
+        if (newScrollTop > scrollTop) {
+          vm.showReplyButton = false;
+        } else {
+          vm.showReplyButton = true;
+        }
+        scrollTop = newScrollTop;
+      }
+
+      node.addEventListener('scroll', handleScroll);
+    },
     handleLoadingChange(payload) {
       this.showContent = payload.isLoaded;
+    },
+    handleReplyReplies(reply) {
+      if (!this.checkLogin()) {
+        return;
+      }
+      this.replyType = 1;
+      this.replyTarget = reply.author.loginname;
+      this.replyContent = `@${reply.author.loginname}`;
+      this.reply_id = reply.id;
+      this.showReplyInput = true;
+    },
+    handleReplyTopic() {
+      if (!this.checkLogin()) {
+        return;
+      }
+      this.replyType = 0;
+      this.replyTarget = `话题：${this.content.title}`;
+      this.replyContent = '';
+      this.showReplyInput = true;
+    },
+    handleSubmit() {
+      this.showReplyInput = false;
+      const submitData = {
+        accesstoken: this.token,
+        content: this.replyContent,
+      };
+      if (this.replyType === 1) {
+        submitData.reply_id = this.reply_id;
+      } else {
+        submitData.reply_id = '';
+      }
+      api.reply(this.content.id, submitData);
     },
   },
   created() {
@@ -213,6 +287,8 @@ export default {
         this.interceptMDLink();
       }
     }, { immediate: true });
+
+    this.listenScroll();
   },
 };
 </script>
@@ -329,5 +405,25 @@ export default {
       font-size: 16px;
     }
   }
+}
+
+.reply-input{
+  textarea{
+    width: 100%;
+    height: 100px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+  }
+}
+.dialog-button{
+  margin: 0 10px;
+  font-size: 12px;
+  color: $mainColor;
+}
+.confirm-button{
+  color: $mainColor;
+}
+.cancel-button{
+  color: #777;
 }
 </style>

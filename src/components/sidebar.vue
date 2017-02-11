@@ -3,7 +3,7 @@
     <div class="sidebar" v-show="show">
       <div class="sidebar-header">
         <div class="user-photo">
-          <router-link :to="userPath" @click="show = false">
+          <router-link :to="userPath" @click.native="show = false">
             <img :src="imgPath">
           </router-link>
         </div>

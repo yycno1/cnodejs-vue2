@@ -46,10 +46,9 @@ export default{
   background-color: #fff;
   border-radius: 2px;
   width: 80%;
+  padding: 15px 15px 0;
 }
 .dialog-content{
-  padding: 20px 20px;
-  font-size: 15px;
   word-wrap: break-word;
   word-break: break-all;
   text-align: left;

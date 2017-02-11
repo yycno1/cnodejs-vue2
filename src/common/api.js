@@ -58,6 +58,11 @@ function ups(replyId, accesstoken) {
   return $http.post(url, { accesstoken });
 }
 
+function reply(topicId, data) {
+  const url = `topic/${topicId}/replies`;
+  return $http.post(url, data);
+}
+
 export default {
   fetchTopic,
   fetchTopicDetail,
@@ -67,4 +72,5 @@ export default {
   collectTopic,
   deCollectTopic,
   ups,
+  reply,
 };
