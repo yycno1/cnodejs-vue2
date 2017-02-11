@@ -3,7 +3,7 @@
     <div class="sidebar" v-show="show">
       <div class="sidebar-header">
         <div class="user-photo">
-          <router-link :to="userPath">
+          <router-link :to="userPath" @click="show = false">
             <img :src="imgPath">
           </router-link>
         </div>
@@ -15,8 +15,8 @@
       </div>
       <div class="sidebar-body">
         <ul class="nav-list">
-          <li v-for="(item, index) of navList" :class="[item.liClass, {active: index === activeIndex}]" @click="navItemClick">
-            <router-link :to="item.to">
+          <li v-for="(item, index) of navList" :class="[item.liClass, {active: index === activeIndex}]">
+            <router-link :to="item.to" @click.native="show = false">
               <i class="iconfont" :class="item.iconClass"></i>
               <span v-text="item.text"></span>
             </router-link>
@@ -103,12 +103,6 @@ export default {
         this.clearUserInfo();
       });
     },
-    overlayClick() {
-      this.$emit('overlayClick');
-    },
-    navItemClick() {
-      this.$emit('navItemClick');
-    },
     clearUserInfo() {
       this.$store.commit('CLEAR_USER');
     },
@@ -142,7 +136,7 @@ export default {
 }
 .sidebar-slide-enter-active,
 .sidebar-slide-leave-active{
-  transition: all .5s;
+  transition: all .3s;
 }
 .sidebar{
   position: fixed;

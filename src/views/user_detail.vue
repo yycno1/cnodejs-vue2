@@ -90,6 +90,8 @@ import TabItem from 'components/tab_item';
 import api from '../common/api';
 
 export default {
+  name: 'userDetail',
+
   data() {
     return {
       title: '用户中心',

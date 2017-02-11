@@ -80,6 +80,8 @@ import { getLabel } from '../common/filter';
 import api from '../common/api';
 
 export default {
+  name: 'topicDetail',
+
   data() {
     return {
       title: '话题',

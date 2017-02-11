@@ -5,7 +5,7 @@
       @leftIconClick="toggleSidebar">
     </my-header>
     <loading :ready="!fetching" @loadingChange="handleLoadingChange"></loading>
-    <ul class="topic-list" v-show="showContent" v-infinity="infinityCall">
+    <ul class="topic-list" ref="topicList" v-show="showContent" v-infinity="infinityCall">
       <li v-for="topic in topics" class="clearfix">
         <router-link :to="'/topic/'+topic.id" class="topic-link">
           <div class="topic-title text-overflow"
@@ -21,7 +21,8 @@
               <div class="topic-info-row">
                 <span v-text="topic.author.loginname"></span>
                 <p class="co-grey no-margin">
-                  <span v-text="topic.reply_count"></span>/
+                  <span v-text="topic.reply_count"></span>
+                  /
                   <span v-text="topic.visit_count"></span>
                 </p>
               </div>
@@ -40,9 +41,7 @@
         </router-link>
       </li>
     </ul>
-    <sidebar v-model="showSidebar"
-      @modalClick="closeSidebar"
-      @navItemClick="closeSidebar">
+    <sidebar v-model="showSidebar" :closeOnClickModal="true">
     </sidebar>
   </div>
 </template>
@@ -71,6 +70,7 @@ export default{
       fetching: false,
       showContent: false,
       path: this.$route.path,
+      scrollTop: 0,
     };
   },
   computed: {
@@ -78,9 +78,9 @@ export default{
       return this.formatLabel(this.pageInfo.tab);
     },
     loading() {
-      return this.topics.length === 0 || this.transitionStatus.enterPath === this.path;
+      return this.topics.length === 0 || this.transitionStatus.enterPath === this.path || this.sidebarStatus === 'open';
     },
-    ...mapGetters(['transitionStatus']),
+    ...mapGetters(['transitionStatus', 'direction']),
   },
   components: {
     MyHeader,
@@ -111,14 +111,6 @@ export default{
     closeSidebar() {
       this.showSidebar = false;
     },
-    setTab() {
-      const tab = this.$route.query.tab;
-      if (!tab) {
-        this.pageInfo.tab = 'all';
-      } else {
-        this.pageInfo.tab = tab;
-      }
-    },
     infinityCall() {
       api.fetchTopic(this.pageInfo)
         .then(({ data }) => {
@@ -135,15 +127,42 @@ export default{
     formatLabel,
   },
   watch: {
-    $route() {
-      this.setTab();
-      this.topics = [];
+    $route(newVal, oldVal) {
+      if (this.direction === 'backword' && newVal.path !== oldVal.path) {
+        // 恢复滚动条位置
+        this.$refs.topicList.scrollTop = this.scrollTop;
+        return;
+      }
+      const tab = newVal.query.tab;
+      if (!tab) {
+        if (newVal.path !== '/') {
+          return;
+        }
+        this.pageInfo.tab = 'all';
+      } else {
+        this.pageInfo.tab = tab;
+      }
+
       this.pageInfo.page = 1;
+      this.topics = [];
+      this.$refs.topicList.scrollTop = 0;
       this.initData();
     },
   },
+  deactivated() {
+    // 记录滚动条位置
+    this.scrollTop = this.$refs.topicList.scrollTop;
+  },
   created() {
-    this.setTab();
+    const tab = this.$route.query.tab;
+    if (!tab) {
+      if (this.$route.path !== '/') {
+        return;
+      }
+      this.pageInfo.tab = 'all';
+    } else {
+      this.pageInfo.tab = tab;
+    }
     this.initData();
   },
 };
@@ -182,7 +201,7 @@ export default{
     @at-root {
       .topic-title{
         line-height: 1.5;
-        margin-bottom: 5px;
+        margin-bottom: 8px;
         font-size: 14px;
         font-weight: bold;
         &:before{
@@ -214,7 +233,10 @@ export default{
       .topic-info-row{
         display: flex;
         justify-content: space-between;
-        margin-bottom: 5px;
+
+        &:first-of-type{
+          margin-bottom: 2px;
+        }
       }
     }
   }

@@ -1,12 +1,14 @@
 <template>
-  <transition
-    :name="animateName"
-    @before-enter="beforeEnter"
-    @after-enter="afterEnter"
-    @before-leave="beforeLeave"
-    @after-leave="afterLeave">
-    <router-view></router-view>
-  </transition>
+    <transition
+      :name="animateName"
+      @before-enter="beforeEnter"
+      @after-enter="afterEnter"
+      @before-leave="beforeLeave"
+      @after-leave="afterLeave">
+      <keep-alive include="topic">
+        <router-view></router-view>
+      </keep-alive>
+    </transition>
 </template>
 
 <script>

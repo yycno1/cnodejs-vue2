@@ -1,6 +1,9 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import http from 'vue-resource';
+
+import fastclick from 'fastclick';
+
 import Alert from './plugins/alert';
 import Confirm from './plugins/confirm';
 
@@ -48,6 +51,10 @@ router.beforeEach((to, from, next) => {
     console.log('forword');
   }
   setTimeout(next, 10);
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  fastclick.attach(document.body);
 });
 
 /* eslint-disable no-new */
